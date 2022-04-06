@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Database\Seeder\PostTableSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,8 +14,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call([
-            PostTableSeeder::class,
-        ]);
+        $this->call(UserSeeder::class);
     }
 }
