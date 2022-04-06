@@ -1,11 +1,7 @@
+import React, { useState, useEffect } from "react";
 import { Card } from "@material-ui/core";
-import React from "react";
 import { makeStyles, createStyles } from "@material-ui/core/styles";
 import PostForm from "./PostForm";
-import { useState } from "react";
-import { useEffect } from "react";
-import axios from "axios";
-import { param } from "jquery";
 
 const useStyles = makeStyles((theme) =>
     createStyles({
@@ -15,13 +11,18 @@ const useStyles = makeStyles((theme) =>
         },
     })
 );
+
 function PostEdit(props) {
     const classes = useStyles();
+
     const params = props.match.params;
+
     const [editData, setEditData] = useState({ name: "", content: "" });
+
     useEffect(() => {
         getEditData();
     }, []);
+
     function getEditData() {
         axios
             .post("/api/edit", {
@@ -39,8 +40,9 @@ function PostEdit(props) {
         if (editData == "") {
             return;
         }
+        //入力値を投げる
         axios
-            .post("api/update", {
+            .post("/api/update", {
                 id: params.id,
                 name: editData.name,
                 content: editData.content,
@@ -48,10 +50,11 @@ function PostEdit(props) {
             .then((res) => {
                 setEditData(res.data);
             })
-            .catch((e) => {
-                console.log(e);
+            .catch((error) => {
+                console.log(error);
             });
     }
+
     function inputChange(e) {
         const key = e.target.name;
         const value = e.target.value;
@@ -59,6 +62,7 @@ function PostEdit(props) {
         let data = Object.assign({}, editData);
         setEditData(data);
     }
+
     return (
         <div className="container">
             <div className="row justify-content-center">
