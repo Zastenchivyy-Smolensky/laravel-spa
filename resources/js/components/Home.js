@@ -1,12 +1,11 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Card } from "@material-ui/core";
 import { makeStyles, createStyles } from "@material-ui/core/styles";
-import MainTable from "./MainTable";
+import MainTable from "../components/MainTable";
 import axios from "axios";
-import { useState } from "react";
-import { useEffect } from "react";
 import PostForm from "./PostForm";
 
+//スタイルの定義
 const useStyles = makeStyles((theme) =>
     createStyles({
         card: {
@@ -16,45 +15,66 @@ const useStyles = makeStyles((theme) =>
     })
 );
 
+//ヘッダーのコンテンツ用の配列定義
 const headerList = ["名前", "タスク内容", "編集", "完了"];
 
 function Home() {
+    //定義したスタイルを利用するための設定
     const classes = useStyles();
+
+    //postsの状態を管理する
     const [posts, setPosts] = useState([]);
+
+    //フォームの入力値を管理するステートの定義
     const [formData, setFormData] = useState({ name: "", content: "" });
 
+    //画面に到着したらgetPostsDataを呼ぶ
     useEffect(() => {
         getPostsData();
     }, []);
 
+    //一覧情報を取得しステートpostsにセットする
     const getPostsData = () => {
         axios
             .get("/api/posts")
-            .then((responce) => {
-                setPosts(responce.data);
+            .then((response) => {
+                setPosts(response.data);
             })
             .catch(() => {
                 console.log("通信に失敗しました");
             });
     };
 
+    //入力がされたら（都度）
+    function inputChange(e) {
+        console.log(e);
+        const key = e.target.name;
+        const value = e.target.value;
+        formData[key] = value;
+        let data = Object.assign({}, formData);
+        setFormData(data);
+    }
+
     const createPost = async () => {
+        //空だと弾く
         if (formData == "") {
             return;
         }
+        //入力値を投げる
         await axios
             .post("/api/post/create", {
                 name: formData.name,
                 content: formData.content,
             })
             .then((res) => {
+                //戻り値をtodosにセット
                 const tempPosts = posts;
                 tempPosts.push(res.data);
                 setPosts(tempPosts);
                 setFormData("");
             })
-            .catch((e) => {
-                console.log(e);
+            .catch((error) => {
+                console.log(error);
             });
     };
 
@@ -68,21 +88,14 @@ function Home() {
                     posts: res.posts,
                 });
             })
-            .catch((e) => {
-                console.log(e);
+            .catch((error) => {
+                console.log(error);
             });
     };
 
-    const inputChange = (e) => {
-        const key = e.target.name;
-        const value = e.target.value;
-        formData[key] = value;
-        let data = Object.assign({}, formData);
-        setFormData(data);
-    };
-
+    //空配列として定義する
     let rows = [];
-
+    //postsの要素ごとにrowsで使える形式に変換する
     posts.map((post) =>
         rows.push({
             name: post.name,
@@ -97,7 +110,6 @@ function Home() {
                     編集
                 </Button>
             ),
-
             deleteBtn: (
                 <Button
                     color="primary"
@@ -125,6 +137,7 @@ function Home() {
                             />
                         </Card>
                         <Card className={classes.card}>
+                            {/* テーブル部分の定義 */}
                             <MainTable headerList={headerList} rows={rows} />
                         </Card>
                     </div>
